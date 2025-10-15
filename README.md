@@ -1,5 +1,11 @@
 # SCP Go Identity Service
 
+[![Version](https://img.shields.io/badge/version-0.1-blue.svg)](https://github.com/scopweb/scp-go-identity-service/releases)
+[![Go Version](https://img.shields.io/badge/go-1.21+-00ADD8.svg)](https://golang.org/)
+[![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+[![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20Linux%20%7C%20Docker-lightgrey.svg)](https://github.com/scopweb/scp-go-identity-service)
+[![.NET Identity](https://img.shields.io/badge/.NET%20Identity-Compatible-512BD4.svg)](https://docs.microsoft.com/en-us/aspnet/core/security/authentication/identity)
+
 Este es un servicio de autenticación en Go que se conecta a una base de datos de Microsoft .NET Identity existente para autenticar usuarios y generar tokens JWT. 
 
 **🏢 Diseñado para entorno de servidor interno donde aplicaciones IIS/.NET pueden consumir el servicio de autenticación de forma independiente de internet.**
@@ -221,7 +227,7 @@ Información general del servicio (formato JSON).
 - ✅ **Algoritmo de Firma JWT Robusto**: Utiliza `HS512` para la firma de tokens, alineado con los estándares de hashing de contraseñas.
 - ✅ **Protección contra Enumeración de Usuarios**: El servicio mitiga los ataques de enumeración de usuarios al garantizar tiempos de respuesta similares para usuarios existentes y no existentes.
 - ✅ **Limitación de Tasa (Rate Limiting)**: Incorpora un middleware que limita las solicitudes por IP para proteger contra ataques de fuerza bruta y DoS.
-- ✅ **Gestión Segura de Secretos**: Prioriza el uso de variables de entorno (`JJP_JWT_KEY`, `JJP_DB_CONNECTION_STRING`) para cargar configuraciones sensibles, evitando que queden expuestas en archivos.
+- ✅ **Gestión Segura de Secretos**: Prioriza el uso de variables de entorno (`SCP_JWT_KEY`, `SCP_DB_CONNECTION_STRING`) para cargar configuraciones sensibles, evitando que queden expuestas en archivos.
 - ✅ **Validación de Audiencia de Token**: Valida que los tokens JWT estén destinados específicamente a este servicio.
 - ✅ Verificación de contraseñas usando el mismo algoritmo que .NET Identity.
 - ✅ Soporte para lockout de cuentas.
