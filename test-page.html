@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SCP Go Identity Service - Test Page</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: white;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        h1 {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 2rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        .test-section {
+            margin: 2rem 0;
+            padding: 1.5rem;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+        }
+        .test-button {
+            background: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            margin: 5px;
+            transition: background 0.3s;
+        }
+        .test-button:hover {
+            background: #45a049;
+        }
+        .test-button.auth {
+            background: #2196F3;
+        }
+        .test-button.auth:hover {
+            background: #1976D2;
+        }
+        .result {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            white-space: pre-wrap;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .input-group {
+            margin: 1rem 0;
+        }
+        .input-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+        }
+        .input-group input {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 5px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 1rem;
+        }
+        .input-group input::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        .status-online { background-color: #4CAF50; }
+        .status-offline { background-color: #f44336; }
+        .status-checking { 
+            background-color: #ff9800; 
+            animation: blink 1s infinite;
+        }
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0.3; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 SCP Go Identity Service - Página de Pruebas</h1>
+        
+        <div class="test-section">
+            <h3><span id="statusIndicator" class="status-indicator status-checking"></span>Estado del Servicio</h3>
+            <p>URL Base: <span id="baseUrl">http://localhost:8081</span></p>
+            <button class="test-button" onclick="checkHealth()">🔍 Verificar Estado</button>
+            <button class="test-button" onclick="getServiceInfo()">ℹ️ Info del Servicio</button>
+            <div id="healthResult" class="result" style="display: none;"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>🔐 Prueba de Autenticación</h3>
+            <div class="input-group">
+                <label for="email">Email:</label>
+                <input type="email" id="email" placeholder="usuario@ejemplo.com">
+            </div>
+            <div class="input-group">
+                <label for="password">Contraseña:</label>
+                <input type="password" id="password" placeholder="contraseña">
+            </div>
+            <button class="test-button auth" onclick="testAuthentication()">🔑 Probar Autenticación</button>
+            <div id="authResult" class="result" style="display: none;"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>⚙️ Configuración</h3>
+            <div class="input-group">
+                <label for="serviceUrl">URL del Servicio:</label>
+                <input type="text" id="serviceUrl" value="http://localhost:8081" onchange="updateBaseUrl()">
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let baseUrl = 'http://localhost:8081';
+        
+        function updateBaseUrl() {
+            baseUrl = document.getElementById('serviceUrl').value;
+            document.getElementById('baseUrl').textContent = baseUrl;
+        }
+        
+        function updateStatus(online) {
+            const indicator = document.getElementById('statusIndicator');
+            indicator.className = 'status-indicator ' + (online ? 'status-online' : 'status-offline');
+        }
+        
+        function setChecking() {
+            const indicator = document.getElementById('statusIndicator');
+            indicator.className = 'status-indicator status-checking';
+        }
+        
+        async function checkHealth() {
+            const resultDiv = document.getElementById('healthResult');
+            resultDiv.style.display = 'block';
+            setChecking();
+            
+            try {
+                const response = await fetch(`${baseUrl}/health`);
+                const data = await response.json();
+                resultDiv.textContent = `✅ Respuesta (${response.status}):\n${JSON.stringify(data, null, 2)}`;
+                updateStatus(true);
+            } catch (error) {
+                resultDiv.textContent = `❌ Error:\n${error.message}`;
+                updateStatus(false);
+            }
+        }
+        
+        async function getServiceInfo() {
+            const resultDiv = document.getElementById('healthResult');
+            resultDiv.style.display = 'block';
+            setChecking();
+            
+            try {
+                const response = await fetch(`${baseUrl}/`);
+                const data = await response.json();
+                resultDiv.textContent = `ℹ️ Info del Servicio (${response.status}):\n${JSON.stringify(data, null, 2)}`;
+                updateStatus(true);
+            } catch (error) {
+                resultDiv.textContent = `❌ Error:\n${error.message}`;
+                updateStatus(false);
+            }
+        }
+        
+        async function testAuthentication() {
+            const resultDiv = document.getElementById('authResult');
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            if (!email || !password) {
+                resultDiv.style.display = 'block';
+                resultDiv.textContent = '❌ Por favor ingresa email y contraseña';
+                return;
+            }
+            
+            resultDiv.style.display = 'block';
+            resultDiv.textContent = '🔄 Autenticando...';
+            
+            try {
+                const response = await fetch(`${baseUrl}/authenticate`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        email: email,
+                        password: password,
+                        generateToken: true
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    resultDiv.textContent = `✅ Autenticación exitosa (${response.status}):\n${JSON.stringify(data, null, 2)}`;
+                } else {
+                    resultDiv.textContent = `❌ Error de autenticación (${response.status}):\n${JSON.stringify(data, null, 2)}`;
+                }
+            } catch (error) {
+                resultDiv.textContent = `❌ Error de conexión:\n${error.message}`;
+            }
+        }
+        
+        // Verificar estado inicial
+        checkHealth();
+        
+        // Auto-verificación cada 30 segundos
+        setInterval(checkHealth, 30000);
+    </script>
+</body>
+</html>

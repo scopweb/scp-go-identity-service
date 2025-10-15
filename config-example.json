@@ -1,0 +1,17 @@
+{
+  "_comment": "Template configuration file for SCP Go Identity Service",
+  "_instructions": "1. Copy this file to config.json, 2. Update with your actual credentials, 3. For production, use environment variables: SCP_JWT_KEY and SCP_DB_CONNECTION_STRING",
+  "database": {
+    "connectionString": "Server=YOUR_SERVER;Connection Timeout=30;Command Timeout=30;Persist Security Info=False;TrustServerCertificate=True;User ID=YOUR_USER;Password=YOUR_PASSWORD;Initial Catalog=YOUR_DATABASE"
+  },
+  "jwt": {
+    "key": "CHANGE-THIS-TO-A-VERY-LONG-AND-SECURE-SECRET-KEY-AT-LEAST-32-CHARACTERS",
+    "issuer": "SCP-Go-Identity-Service",
+    "audience": "SCP-Internal-Apps",
+    "expiryInHours": 12
+  },
+  "server": {
+    "host": "localhost",
+    "port": "8081"
+  }
+}
